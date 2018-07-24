@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Music Box</string>
+    <string name="play_button_name">Play</string>
+    <string name="song_name">Tokyo Ghoul</string>
+    <string name="artist_name">Unravel</string>
+    <string name="starting_time">0:00</string>
+    <string name="ending_time">4:00</string>
+</resources>
