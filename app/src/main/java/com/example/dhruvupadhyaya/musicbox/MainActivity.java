@@ -1,6 +1,10 @@
 package com.example.dhruvupadhyaya.musicbox;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -22,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView artistImage;
     private TextView leftTime;
     private TextView rightTime;
+    private Thread thread;
 
 
     @Override
@@ -40,11 +45,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mediaPlayer.seekTo(progress);
                 }
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm : ss");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
                 int currentPosition = mediaPlayer.getCurrentPosition();
                 int duration = mediaPlayer.getDuration();
-                leftTime.setText(simpleDateFormat.format(new Date(currentPosition)));
-                rightTime.setText(simpleDateFormat.format(new Date(duration - currentPosition)));
+                leftTime.setText(String.valueOf(dateFormat.format( new Date(currentPosition))));
+                rightTime.setText(String.valueOf(dateFormat.format(new Date(duration - currentPosition))));
             }
 
             @Override
@@ -73,7 +78,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         nextButton = findViewById(R.id.nextButtonId);
 
         artistImage = findViewById(R.id.artistImageId);
-       // artistImage.setImageResource(R.drawable.touka);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.touka);
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.
+                create(getResources(),bitmap);
+        roundedBitmapDrawable.setCircular(true);
+        artistImage.setImageDrawable(roundedBitmapDrawable);
+
 
         leftTime = findViewById(R.id.leftTimeId);
         rightTime = findViewById(R.id.rightTimeId);
@@ -89,8 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
 
             case R.id.prevButtonId:{
-
-
+                backMusic();
             }
             break;
 
@@ -104,8 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             break;
 
             case R.id.nextButtonId:{
-
-
+                nextMusic();
             }
             break;
 
@@ -123,7 +131,71 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void playMusic(){
         if (mediaPlayer != null){
             mediaPlayer.start();
+            updateThread();
             playButton.setBackgroundResource(android.R.drawable.ic_media_pause);
         }
     }
+    public void backMusic(){
+        if (mediaPlayer.isPlaying()){
+            //for now
+            mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() - 5000);
+        }
+    }
+    public void nextMusic(){
+        if (mediaPlayer.isPlaying()){
+
+            mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() + 5000);
+        }
+    }
+    public void updateThread(){
+        thread = new Thread(){
+            @Override
+            public void run() {
+                try{
+
+                    while (mediaPlayer != null && mediaPlayer.isPlaying()){
+                        Thread.sleep(50);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                int newPosition = mediaPlayer.getCurrentPosition();
+                                int newMax = mediaPlayer.getDuration();
+
+                                seekBar.setMax(newMax);
+                                seekBar.setProgress(newPosition);
+
+                                //Update the text
+                                leftTime.setText(String.valueOf(new SimpleDateFormat("mm:ss").
+                                        format(new Date(mediaPlayer.getCurrentPosition()))));
+                                rightTime.setText(String.valueOf(new SimpleDateFormat("mm:ss").
+                                        format(new Date(mediaPlayer.getDuration() - mediaPlayer.getCurrentPosition()))));
+
+                            }
+                        });
+                    }
+
+
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        if (mediaPlayer != null && mediaPlayer.isPlaying()){
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+
+            thread.interrupt();
+            thread = null;
+        }
+
+        super.onDestroy();
+    }
 }
+
