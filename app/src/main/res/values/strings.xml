@@ -5,4 +5,7 @@
     <string name="artist_name">Unravel</string>
     <string name="starting_time">0:00</string>
     <string name="ending_time">4:00</string>
+    <string name="alert_message">Are you sure you want to exit?</string>
+    <string name="negative_tittle">No</string>
+    <string name="positive_tittle">Yes</string>
 </resources>

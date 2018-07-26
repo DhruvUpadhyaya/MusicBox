@@ -1,12 +1,17 @@
 package com.example.dhruvupadhyaya.musicbox;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.nfc.Tag;
+import android.os.Handler;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView leftTime;
     private TextView rightTime;
     private Thread thread;
+    private AlertDialog.Builder alertDialog;
 
 
     @Override
@@ -83,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 create(getResources(),bitmap);
         roundedBitmapDrawable.setCircular(true);
         artistImage.setImageDrawable(roundedBitmapDrawable);
+
 
 
         leftTime = findViewById(R.id.leftTimeId);
@@ -186,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
 
+
+        
         if (mediaPlayer != null && mediaPlayer.isPlaying()){
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -197,5 +206,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         super.onDestroy();
     }
+
+
+
+
+    private boolean twice = false;
+    @Override
+    public void onBackPressed() {
+
+        Log.d("twice","click");
+        if (twice == true){
+            MainActivity.this.finish();
+
+        }
+        twice = true;
+        Log.d("twice"," " + twice);
+
+
+        Toast.makeText(MainActivity.this,"Press BACK again to EXIT",Toast.LENGTH_SHORT).show();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                twice = false;
+
+                Log.d("twice"," " + twice);
+            }
+        }, 3000);
+
+
+        Log.d("twice"," " + twice);
+    }
+
 }
 
